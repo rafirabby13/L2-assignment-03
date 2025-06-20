@@ -1,18 +1,42 @@
 import express, { Request, Response } from "express";
 import { Books } from "../models/books.model";
+import { z } from "zod";
 
 export const booksRoutes = express.Router();
 
-booksRoutes.post("/", async (req: Request, res: Response) => {
-  const body = req.body;
-  const data = await Books.create(body);
+const createBookZodschema = z.object({
+  title: z.string(),
+  author: z.string(),
+  genre: z.string(),
+  isbn: z.string(),
+  description: z.string().optional(),
+  copies: z.number().positive(),
+  available: z.boolean(),
+});
 
-  console.log(body);
-  res.status(201).send({
-    success: true,
-    message: "Book created successfully",
-    data: data,
-  });
+booksRoutes.post("/", async (req: Request, res: Response) => {
+  try {
+    const body = await createBookZodschema.parseAsync(req.body);
+    const data = await Books.create(body);
+
+    // console.log(body);
+    res.status(201).send({
+      success: true,
+      message: "Book created successfully",
+      data: data,
+    });
+  } catch (error: any) {
+    // console.log({
+    //   message: error.message,
+    //   success: false,
+    //   error,
+    // })
+    res.status(400).send({
+      message: error.message,
+      success: false,
+      error,
+    });
+  }
 });
 booksRoutes.get("/", async (req: Request, res: Response) => {
   const query: any = req.query;
@@ -63,7 +87,7 @@ booksRoutes.delete("/:bookId", async (req: Request, res: Response) => {
   const bookId = req.params.bookId;
 
   // console.log(bookId)
-  const data = await Books.findByIdAndDelete(bookId, {new: true});
+  const data = await Books.findByIdAndDelete(bookId, { new: true });
 
   res.status(201).send({
     success: true,

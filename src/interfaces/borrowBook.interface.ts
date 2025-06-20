@@ -3,7 +3,7 @@ import { Model, Types } from "mongoose";
 export interface IBorrowBooks {
   book: Types.ObjectId;
   quantity: number;
-  dueDate: String;
+  dueDate: string;
 }
 
 export interface IUpdateAvailableStatusStaticMethod

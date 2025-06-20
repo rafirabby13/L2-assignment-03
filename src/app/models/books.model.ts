@@ -1,32 +1,39 @@
 import mongoose, { model } from "mongoose";
 import { Schema } from "mongoose";
 import { IBook } from "../../interfaces/books.interface";
-import { Timestamp } from "./../../../node_modules/bson/src/timestamp";
 
 const BookSchema = new Schema<IBook>(
   {
-    title: { type: String, required: true },
-    author: { type: String, required: true },
+    title: { type: String, required: true, trim: true },
+    author: { type: String, required: true, trim: true },
     genre: {
       type: String,
       required: true,
-      enum: [
-        "FICTION",
-        "NON_FICTION",
-        "SCIENCE",
-        "HISTORY",
-        "BIOGRAPHY",
-        "FANTASY",
-      ],
+      enum: {
+        values: [
+          "FICTION",
+          "NON_FICTION",
+          "SCIENCE",
+          "HISTORY",
+          "BIOGRAPHY",
+          "FANTASY",
+        ],
+        message: "Genre is not valid. got {VALUE}",
+      },
+      uppercase: true,
     },
-    isbn: { type: String, required: true, unique: true },
-    description: String,
+    isbn: {
+      type: String,
+      required: true,
+      unique: [true, "Must be an Unique ISBN number"],
+    },
+    description: { type: String, trim: true },
     copies: { type: Number, required: true },
-    available: Boolean,
+    available: { type: Boolean, default: true },
   },
   {
     timestamps: true,
-    versionKey: false
+    versionKey: false,
   }
 );
 
