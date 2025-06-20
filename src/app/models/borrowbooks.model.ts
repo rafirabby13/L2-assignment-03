@@ -1,7 +1,14 @@
 import mongoose, { model, Schema } from "mongoose";
-import { IBorrowBooks } from "../../interfaces/borrowBook.interface";
+import {
+  IBorrowBooks,
+  IUpdateAvailableStatusStaticMethod,
+} from "../../interfaces/borrowBook.interface";
+import { Books } from "./books.model";
 
-const Borrowbooks = new Schema<IBorrowBooks>(
+const Borrowbooks = new Schema<
+  IBorrowBooks,
+  IUpdateAvailableStatusStaticMethod
+>(
   {
     book: { type: mongoose.Schema.Types.ObjectId, required: true },
     quantity: { type: Number, required: true },
@@ -13,4 +20,14 @@ const Borrowbooks = new Schema<IBorrowBooks>(
   }
 );
 
-export const Borrowbook = model("Borrowbook", Borrowbooks);
+Borrowbooks.static(
+  "updateAvailableStatus",
+  async function updateAvailableStatus(book: string, available: boolean) {
+    const updatedAvailable = {
+      available: false,
+    };
+    return await Books.findByIdAndUpdate(book, updatedAvailable);
+  }
+);
+
+export const Borrowbook = model<IBorrowBooks, IUpdateAvailableStatusStaticMethod>("Borrowbook", Borrowbooks);

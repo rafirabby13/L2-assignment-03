@@ -11,13 +11,12 @@ borrowBooksRoutes.post("/", async (req: Request, res: Response) => {
   const bookToBorrow: any = await Books.findById(body.book);
   const availableCopiesOfbooks: number = Number(bookToBorrow?.copies);
   if (bookToBorrow?.available) {
-
     const quantityOfBorrow: number = Number(body.quantity);
     console.log(availableCopiesOfbooks, quantityOfBorrow);
 
     if (availableCopiesOfbooks) {
       if (availableCopiesOfbooks < quantityOfBorrow) {
-        res.send(`you cant borrow ...${availableCopiesOfbooks} available`);
+        res.send(`you cant borrow ...${availableCopiesOfbooks} availableeee`);
         return;
       }
     }
@@ -27,8 +26,8 @@ borrowBooksRoutes.post("/", async (req: Request, res: Response) => {
       copies: remainingCopiesOfBooks,
     });
     if (remainingCopiesOfBooks === 0) {
-      await Books.findByIdAndUpdate(body.book, { available: false });
-      return;
+      // await Books.findByIdAndUpdate(body.book, { available: false });
+      await Borrowbook.updateAvailableStatus(body.book, bookToBorrow.available);
     }
 
     const data = await Borrowbook.create(body);
@@ -38,9 +37,8 @@ borrowBooksRoutes.post("/", async (req: Request, res: Response) => {
       message: "Book borrowed successfully",
       data,
     });
-  }
-  else{
-     res.send(`you cant borrow ...${availableCopiesOfbooks} available`);
+  } else {
+    res.send(`you cant borrow ...${availableCopiesOfbooks} available`);
   }
 });
 
