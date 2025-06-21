@@ -1,6 +1,7 @@
 import express, { Request, Response } from "express";
 import { Books } from "../models/books.model";
 import { z } from "zod";
+import mongoose from "mongoose";
 
 export const booksRoutes = express.Router();
 
@@ -59,9 +60,23 @@ booksRoutes.get("/:bookId", async (req: Request, res: Response) => {
   const bookId = req.params.bookId;
 
   // console.log(bookId)
+  if (!mongoose.Types.ObjectId.isValid(bookId)) {
+    res.status(400).json({
+      message: "Invalid book ID format",
+      success: false,
+    });
+    return;
+  }
   const data = await Books.findById(bookId);
+  if (!data) {
+    res.status(404).json({
+      success: false,
+      message: "Book not found",
+    });
+    return;
+  }
 
-  res.status(201).send({
+  res.status(200).send({
     success: true,
     message: "Books retrieved successfully",
     data,

@@ -28,7 +28,11 @@ const BookSchema = new Schema<IBook>(
       unique: [true, "Must be an Unique ISBN number"],
     },
     description: { type: String, trim: true },
-    copies: { type: Number, required: true },
+    copies: { 
+      type: Number, 
+      required: true,
+    min: [1, "You have to add minimum 1 copy"]
+    },
     available: { type: Boolean, default: true },
   },
   {

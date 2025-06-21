@@ -8,17 +8,20 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose = require("mongoose");
+const app_1 = __importDefault(require("./app"));
 const port = 5000;
 require('dotenv').config();
 const express = require("express");
-const app = express();
 function main() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             yield mongoose.connect(`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.7ufsi.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`);
-            app.listen(port, () => {
+            app_1.default.listen(port, () => {
                 console.log(`Example app listening on port ${port}`);
             });
         }
