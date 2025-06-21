@@ -40,6 +40,10 @@ exports.borrowBooksRoutes.post("/", (req, res) => __awaiter(void 0, void 0, void
                     res.status(400).send({
                         message: `you can't borrow--> ${availableCopiesOfbooks} boooks available`,
                         success: false,
+                        error: {
+                            availableCopies: availableCopiesOfbooks,
+                            requestedQuantity: quantityOfBorrow,
+                        },
                     });
                     return;
                 }

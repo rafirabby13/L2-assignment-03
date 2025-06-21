@@ -1,9 +1,9 @@
-import { Model, Types } from "mongoose";
+import {  Model, Types } from "mongoose";
 
 export interface IBorrowBooks {
   book: Types.ObjectId;
   quantity: number;
-  dueDate: string;
+  dueDate: Date;
 }
 
 export interface IUpdateAvailableStatusStaticMethod

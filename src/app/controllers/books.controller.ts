@@ -2,13 +2,21 @@ import express, { Request, Response } from "express";
 import { Books } from "../models/books.model";
 import { z } from "zod";
 import mongoose from "mongoose";
+import { Borrowbook } from "../models/borrowbooks.model";
 
 export const booksRoutes = express.Router();
 
 const createBookZodschema = z.object({
   title: z.string(),
   author: z.string(),
-  genre: z.string(),
+  genre: z.enum([
+    "FICTION",
+    "NON_FICTION",
+    "SCIENCE",
+    "HISTORY",
+    "BIOGRAPHY",
+    "FANTASY",
+  ]),
   isbn: z.string(),
   description: z.string().optional(),
   copies: z.number().positive(),
@@ -45,15 +53,23 @@ booksRoutes.get("/", async (req: Request, res: Response) => {
   const filter = query.filter ? { genre: query.filter } : {};
   const limit = query.limit ? query.limit : Infinity;
   const sort = query.sort === "asc" ? 1 : -1;
-  const sortBy: any = query.sortBy ? { createdAt: sort } : {};
+  const sortBy: any = query.sortBy ? { [query.sortBy]: sort } : {};
 
-  const data = await Books.find(filter).limit(limit).sort(sortBy);
+  try {
+    const data = await Books.find(filter).limit(limit).sort(sortBy);
 
-  res.status(201).send({
-    success: true,
-    message: "Books retrieved successfully",
-    data,
-  });
+    res.status(200).send({
+      success: true,
+      message: "Books retrieved successfully",
+      data,
+    });
+  } catch (error) {
+    res.status(400).send({
+      message: "Failed to retrieve books",
+      success: false,
+      error,
+    });
+  }
 });
 
 booksRoutes.get("/:bookId", async (req: Request, res: Response) => {
@@ -88,15 +104,36 @@ booksRoutes.put("/:bookId", async (req: Request, res: Response) => {
   const updatedData = req.body;
 
   // console.log(bookId)
-  const data = await Books.findByIdAndUpdate(bookId, updatedData, {
-    new: true,
-  });
+  try {
+    const data = await Books.findByIdAndUpdate(bookId, updatedData, {
+      new: true,
+    });
+    console.log("data", data)
+    if (data && data.copies > 0) {
+      await Books.findByIdAndUpdate(
+        bookId,
+        { available: true },
+        {
+          new: true,
+        }
+      );
+    }
+    if (data && data.copies === 0) {
+       await Borrowbook.updateAvailableStatus(bookId,data.available);
+    }
 
-  res.status(201).send({
-    success: true,
-    message: "Book updated successfully",
-    data,
-  });
+    res.status(200).send({
+      success: true,
+      message: "Book updated successfully",
+      data,
+    });
+  } catch (error: any) {
+    res.status(200).send({
+      success: false,
+      message: error.message,
+      error,
+    });
+  }
 });
 booksRoutes.delete("/:bookId", async (req: Request, res: Response) => {
   const bookId = req.params.bookId;
@@ -104,7 +141,7 @@ booksRoutes.delete("/:bookId", async (req: Request, res: Response) => {
   // console.log(bookId)
   const data = await Books.findByIdAndDelete(bookId, { new: true });
 
-  res.status(201).send({
+  res.status(200).send({
     success: true,
     message: "Book deleted successfully",
     data: null,

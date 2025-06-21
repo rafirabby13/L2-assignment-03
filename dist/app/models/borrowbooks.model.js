@@ -47,8 +47,12 @@ const mongoose_1 = __importStar(require("mongoose"));
 const books_model_1 = require("./books.model");
 const Borrowbooks = new mongoose_1.Schema({
     book: { type: mongoose_1.default.Schema.Types.ObjectId, required: true },
-    quantity: { type: Number, required: true },
-    dueDate: { type: String, required: true },
+    quantity: {
+        type: Number,
+        required: true,
+        min: [1, "Quantity must be a positive number"]
+    },
+    dueDate: { type: Date, required: true },
 }, {
     timestamps: true,
     versionKey: false,

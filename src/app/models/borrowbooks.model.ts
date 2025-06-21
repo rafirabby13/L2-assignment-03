@@ -11,8 +11,12 @@ const Borrowbooks = new Schema<
 >(
   {
     book: { type: mongoose.Schema.Types.ObjectId, required: true },
-    quantity: { type: Number, required: true },
-    dueDate: { type: String, required: true },
+    quantity: { 
+      type: Number, 
+      required: true,
+      min: [1, "Quantity must be a positive number"]
+    },
+    dueDate: { type: Date, required: true },
   },
   {
     timestamps: true,

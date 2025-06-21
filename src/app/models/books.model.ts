@@ -31,7 +31,6 @@ const BookSchema = new Schema<IBook>(
     copies: { 
       type: Number, 
       required: true,
-    min: [1, "You have to add minimum 1 copy"]
     },
     available: { type: Boolean, default: true },
   },
@@ -40,5 +39,10 @@ const BookSchema = new Schema<IBook>(
     versionKey: false,
   }
 );
+
+BookSchema.post("findOneAndUpdate",async function(doc,next ){
+console.log("doc", this.getQuery(), doc)
+next()
+})
 
 export const Books = model("Books", BookSchema);

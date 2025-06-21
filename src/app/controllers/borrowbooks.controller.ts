@@ -15,7 +15,7 @@ const createBorrowBookZodschema = z.object({
 borrowBooksRoutes.post("/", async (req: Request, res: Response) => {
   try {
     // const body = req.body;
-    const body =await createBorrowBookZodschema.parseAsync(req.body)
+    const body = await createBorrowBookZodschema.parseAsync(req.body);
     // console.log(body);
 
     const bookToBorrow: any = await Books.findById(body.book);
@@ -29,6 +29,10 @@ borrowBooksRoutes.post("/", async (req: Request, res: Response) => {
           res.status(400).send({
             message: `you can't borrow--> ${availableCopiesOfbooks} boooks available`,
             success: false,
+            error: {
+              availableCopies: availableCopiesOfbooks,
+              requestedQuantity: quantityOfBorrow,
+            },
           });
           return;
         }
