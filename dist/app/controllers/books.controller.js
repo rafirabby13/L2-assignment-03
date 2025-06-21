@@ -17,6 +17,7 @@ const express_1 = __importDefault(require("express"));
 const books_model_1 = require("../models/books.model");
 const zod_1 = require("zod");
 const mongoose_1 = __importDefault(require("mongoose"));
+const borrowbooks_model_1 = require("../models/borrowbooks.model");
 exports.booksRoutes = express_1.default.Router();
 const createBookZodschema = zod_1.z.object({
     title: zod_1.z.string(),
@@ -32,7 +33,7 @@ const createBookZodschema = zod_1.z.object({
     isbn: zod_1.z.string(),
     description: zod_1.z.string().optional(),
     copies: zod_1.z.number().positive(),
-    available: zod_1.z.boolean(),
+    available: zod_1.z.boolean().optional(),
 });
 exports.booksRoutes.post("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -108,19 +109,32 @@ exports.booksRoutes.put("/:bookId", (req, res) => __awaiter(void 0, void 0, void
     const bookId = req.params.bookId;
     const updatedData = req.body;
     // console.log(bookId)
-    const data = yield books_model_1.Books.findByIdAndUpdate(bookId, updatedData, {
-        new: true,
-    });
-    if (data && data.copies > 0) {
-        yield books_model_1.Books.findByIdAndUpdate(bookId, { available: true }, {
+    try {
+        const data = yield books_model_1.Books.findByIdAndUpdate(bookId, updatedData, {
             new: true,
         });
+        console.log("data", data);
+        if (data && data.copies > 0) {
+            yield books_model_1.Books.findByIdAndUpdate(bookId, { available: true }, {
+                new: true,
+            });
+        }
+        if (data && data.copies === 0) {
+            yield borrowbooks_model_1.Borrowbook.updateAvailableStatus(bookId, data.available);
+        }
+        res.status(200).send({
+            success: true,
+            message: "Book updated successfully",
+            data,
+        });
     }
-    res.status(200).send({
-        success: true,
-        message: "Book updated successfully",
-        data,
-    });
+    catch (error) {
+        res.status(200).send({
+            success: false,
+            message: error.message,
+            error,
+        });
+    }
 }));
 exports.booksRoutes.delete("/:bookId", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const bookId = req.params.bookId;

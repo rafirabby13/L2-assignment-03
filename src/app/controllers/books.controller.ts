@@ -20,7 +20,7 @@ const createBookZodschema = z.object({
   isbn: z.string(),
   description: z.string().optional(),
   copies: z.number().positive(),
-  available: z.boolean(),
+  available: z.boolean().optional(),
 });
 
 booksRoutes.post("/", async (req: Request, res: Response) => {
@@ -105,12 +105,13 @@ booksRoutes.put("/:bookId", async (req: Request, res: Response) => {
 
   // console.log(bookId)
   try {
-    const data = await Books.findByIdAndUpdate(bookId, updatedData, {
+    let data;
+     data = await Books.findByIdAndUpdate(bookId, updatedData, {
       new: true,
     });
-    console.log("data", data)
+    // console.log("data", data)
     if (data && data.copies > 0) {
-      await Books.findByIdAndUpdate(
+     data = await Books.findByIdAndUpdate(
         bookId,
         { available: true },
         {
