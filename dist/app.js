@@ -2,9 +2,11 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const books_controller_1 = require("./app/controllers/books.controller");
 const borrowbooks_controller_1 = require("./app/controllers/borrowbooks.controller");
+var cors = require('cors');
 const express = require("express");
 const app = express();
 app.use(express.json());
+app.use(cors());
 app.use("/api/books", books_controller_1.booksRoutes);
 app.use("/api/borrow", borrowbooks_controller_1.borrowBooksRoutes);
 app.get("/", (req, res) => {

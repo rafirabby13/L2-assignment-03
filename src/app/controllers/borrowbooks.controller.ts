@@ -9,14 +9,14 @@ const createBorrowBookZodschema = z.object({
     message: "Invalid ObjectId format",
   }),
   quantity: z.number().positive(),
-  dueDate: z.string().datetime(),
+  dueDate: z.string(),
 });
 
 borrowBooksRoutes.post("/", async (req: Request, res: Response) => {
   try {
     // const body = req.body;
     const body = await createBorrowBookZodschema.parseAsync(req.body);
-    // console.log(body);
+    console.log(body);
 
     const bookToBorrow: any = await Books.findById(body.book);
     const availableCopiesOfbooks: number = Number(bookToBorrow?.copies);

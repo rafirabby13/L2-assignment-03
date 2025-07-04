@@ -1,10 +1,11 @@
 import { Application, Request, Response } from "express";
 import { booksRoutes } from "./app/controllers/books.controller";
 import { borrowBooksRoutes } from "./app/controllers/borrowbooks.controller";
-
+var cors = require('cors')
 const express = require("express");
 const app: Application = express();
 app.use(express.json());
+app.use(cors())
 app.use("/api/books", booksRoutes);
 app.use("/api/borrow", borrowBooksRoutes);
 app.get("/", (req: Request, res: Response) => {

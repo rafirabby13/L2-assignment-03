@@ -28,18 +28,14 @@ booksRoutes.post("/", async (req: Request, res: Response) => {
     const body = await createBookZodschema.parseAsync(req.body);
     const data = await Books.create(body);
 
-    // console.log(body);
+    console.log(body);
     res.status(201).send({
       success: true,
       message: "Book created successfully",
       data: data,
     });
   } catch (error: any) {
-    // console.log({
-    //   message: error.message,
-    //   success: false,
-    //   error,
-    // })
+   
     res.status(400).send({
       message: error.message,
       success: false,
@@ -103,7 +99,7 @@ booksRoutes.put("/:bookId", async (req: Request, res: Response) => {
   const bookId = req.params.bookId;
   const updatedData = req.body;
 
-  // console.log(bookId)
+  // console.log(bookId, updatedData)
   try {
     let data;
      data = await Books.findByIdAndUpdate(bookId, updatedData, {
@@ -141,6 +137,7 @@ booksRoutes.delete("/:bookId", async (req: Request, res: Response) => {
 
   // console.log(bookId)
   const data = await Books.findByIdAndDelete(bookId, { new: true });
+  const deletedBooksFromBorrowTable = Borrowbook.deleteMany({bookId}) 
 
   res.status(200).send({
     success: true,
