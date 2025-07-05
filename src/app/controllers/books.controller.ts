@@ -46,18 +46,26 @@ booksRoutes.post("/", async (req: Request, res: Response) => {
 booksRoutes.get("/", async (req: Request, res: Response) => {
   const query: any = req.query;
 
+  const page = parseInt(query.page) || 1;
   const filter = query.filter ? { genre: query.filter } : {};
-  const limit = query.limit ? query.limit : Infinity;
+  const limit = query.limit ? query.limit : 7;
+  const skip = (page - 1) * limit;
   const sort = query.sort === "asc" ? 1 : -1;
   const sortBy: any = query.sortBy ? { [query.sortBy]: sort } : {};
 
   try {
-    const data = await Books.find(filter).limit(limit).sort(sortBy);
+    const totalItems = await Books.countDocuments(filter);
+    const totalPages = Math.ceil(totalItems / limit);
+    const data = await Books.find(filter).skip(skip).limit(limit).sort(sortBy);
 
     res.status(200).send({
       success: true,
       message: "Books retrieved successfully",
       data,
+      page,
+      limit,
+      totalPages,
+      totalItems,
     });
   } catch (error) {
     res.status(400).send({

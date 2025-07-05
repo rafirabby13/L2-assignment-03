@@ -23,13 +23,13 @@ const createBorrowBookZodschema = zod_1.z.object({
         message: "Invalid ObjectId format",
     }),
     quantity: zod_1.z.number().positive(),
-    dueDate: zod_1.z.string().datetime(),
+    dueDate: zod_1.z.string(),
 });
 exports.borrowBooksRoutes.post("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         // const body = req.body;
         const body = yield createBorrowBookZodschema.parseAsync(req.body);
-        // console.log(body);
+        console.log(body);
         const bookToBorrow = yield books_model_1.Books.findById(body.book);
         const availableCopiesOfbooks = Number(bookToBorrow === null || bookToBorrow === void 0 ? void 0 : bookToBorrow.copies);
         if (bookToBorrow === null || bookToBorrow === void 0 ? void 0 : bookToBorrow.available) {

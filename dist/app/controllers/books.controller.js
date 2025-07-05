@@ -39,7 +39,7 @@ exports.booksRoutes.post("/", (req, res) => __awaiter(void 0, void 0, void 0, fu
     try {
         const body = yield createBookZodschema.parseAsync(req.body);
         const data = yield books_model_1.Books.create(body);
-        // console.log(body);
+        console.log(body);
         res.status(201).send({
             success: true,
             message: "Book created successfully",
@@ -47,11 +47,6 @@ exports.booksRoutes.post("/", (req, res) => __awaiter(void 0, void 0, void 0, fu
         });
     }
     catch (error) {
-        // console.log({
-        //   message: error.message,
-        //   success: false,
-        //   error,
-        // })
         res.status(400).send({
             message: error.message,
             success: false,
@@ -61,16 +56,24 @@ exports.booksRoutes.post("/", (req, res) => __awaiter(void 0, void 0, void 0, fu
 }));
 exports.booksRoutes.get("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const query = req.query;
+    const page = parseInt(query.page) || 1;
     const filter = query.filter ? { genre: query.filter } : {};
-    const limit = query.limit ? query.limit : Infinity;
+    const limit = query.limit ? query.limit : 7;
+    const skip = (page - 1) * limit;
     const sort = query.sort === "asc" ? 1 : -1;
     const sortBy = query.sortBy ? { [query.sortBy]: sort } : {};
     try {
-        const data = yield books_model_1.Books.find(filter).limit(limit).sort(sortBy);
+        const totalItems = yield books_model_1.Books.countDocuments(filter);
+        const totalPages = Math.ceil(totalItems / limit);
+        const data = yield books_model_1.Books.find(filter).skip(skip).limit(limit).sort(sortBy);
         res.status(200).send({
             success: true,
             message: "Books retrieved successfully",
             data,
+            page,
+            limit,
+            totalPages,
+            totalItems,
         });
     }
     catch (error) {
@@ -108,7 +111,7 @@ exports.booksRoutes.get("/:bookId", (req, res) => __awaiter(void 0, void 0, void
 exports.booksRoutes.put("/:bookId", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const bookId = req.params.bookId;
     const updatedData = req.body;
-    // console.log(bookId)
+    // console.log(bookId, updatedData)
     try {
         let data;
         data = yield books_model_1.Books.findByIdAndUpdate(bookId, updatedData, {
@@ -141,6 +144,7 @@ exports.booksRoutes.delete("/:bookId", (req, res) => __awaiter(void 0, void 0, v
     const bookId = req.params.bookId;
     // console.log(bookId)
     const data = yield books_model_1.Books.findByIdAndDelete(bookId, { new: true });
+    const deletedBooksFromBorrowTable = borrowbooks_model_1.Borrowbook.deleteMany({ bookId });
     res.status(200).send({
         success: true,
         message: "Book deleted successfully",
